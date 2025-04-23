@@ -54,8 +54,10 @@
 #include <rtems.h>
 #include <bsp.h>
 
+#if !defined(__RTEMS_MAJOR__) || __RTEMS_MAJOR__ <= 4
 /* Macro to detect RTEMS version */
 #include <rtems/system.h>
+#endif
 
 #define RTEMS_ISMINVERSION(ma,mi,re) \
 	(    __RTEMS_MAJOR__  > (ma)	\

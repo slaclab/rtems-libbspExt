@@ -71,7 +71,9 @@
  */ 
 #include <rtems.h>
 #include <bsp.h>
+#if !defined(__RTEMS_MAJOR__) || __RTEMS_MAJOR__ <= 4 
 #include <rtems/system.h>
+#endif
 #include <bsp/irq.h>
 
 #include "bspExt.h"

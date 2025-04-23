@@ -204,6 +204,15 @@ bspExtRemoveBreakpoint(void *addr)
 #define PHASE(cause)	((cause)&2)
 #define TYPE(cause)		((cause)&1)
 
+static long
+_bspExtGetDAR(BSP_Exception_frame *fp)
+{
+#if __RTEMS_MAJOR__ >= 6
+    return ppc_exc_get_DAR();
+#else
+    return fp->EXC_DAR;
+#endif
+}
 
 int
 _bspExtCatchBreakpoint(BSP_Exception_frame *fp)
@@ -216,8 +225,8 @@ int				cause = -1;
 /* check for catch condition */
 	if ( 3==fp->_EXC_number && 
          (BPNTS[DBPNT].mode & DABR_MODE_COARSE ?
-           !(((long)BPNTS[DBPNT].addr ^ (long)fp->EXC_DAR) & ~DABR_FLGS) :
-           (long)BPNTS[DBPNT].addr == (long)fp->EXC_DAR
+           !(((long)BPNTS[DBPNT].addr ^ (long)_bspExtGetDAR(fp)) & ~DABR_FLGS) :
+           (long)BPNTS[DBPNT].addr == (long)_bspExtGetDAR(fp)
          ) )
 		cause = CAUSE_DABR_PHASE1;
 	else if ( 0x13 == fp->_EXC_number &&

@@ -59,6 +59,11 @@
 #include <libcpu/spr.h>
 #include <libcpu/cpuIdent.h>
 
+#if __RTEMS_MAJOR__ >= 6
+#include <rtems/error.h>
+#define BSP_panic rtems_panic
+#endif
+
 #define SRR1_TEA_EXC    (1<<(31-13))
 #define SRR1_MCP_EXC    (1<<(31-12))
 
