@@ -95,3 +95,9 @@ _bspExtMemProbeInit();
 
 return rval;
 }
+
+void
+rtemsEntryPoint()
+{
+  /* no-op */
+}
