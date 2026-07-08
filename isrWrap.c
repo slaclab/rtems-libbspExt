@@ -90,6 +90,7 @@ static int  noop1(const rtems_irq_connect_data *unused) { return 0;};
 int
 bspExtInstallSharedISR(int irqLine, void (*isr)(void *), void * uarg, int flags)
 {
+#if __RTEMS_MAJOR__ < 7
 rtems_irq_connect_data suck = {0};
 	suck.name   = irqLine;
 	suck.hdl    = isr;
@@ -100,11 +101,24 @@ rtems_irq_connect_data suck = {0};
 	return ! ( ( BSPEXT_ISR_NONSHARED & flags ) ?
 		BSP_install_rtems_irq_handler(&suck) :	
 		BSP_install_rtems_shared_irq_handler(&suck) );
+#else
+  rtems_option irqflags = (flags & BSPEXT_ISR_NONSHARED) ?
+    RTEMS_INTERRUPT_UNIQUE : RTEMS_INTERRUPT_SHARED;
+
+  return rtems_interrupt_handler_install(
+    irqLine,
+    "bspIrq",
+    irqflags,
+    isr,
+    uarg
+  ) == RTEMS_SUCCESSFUL ? 0 : -1;
+#endif
 }
 
 int
 bspExtRemoveSharedISR(int irqLine, void (*isr)(void *), void *uarg)
 {
+#if __RTEMS_MAJOR__ < 7
 rtems_irq_connect_data suck = {0};
 	suck.name   = irqLine;
 	suck.hdl    = isr;
@@ -113,6 +127,13 @@ rtems_irq_connect_data suck = {0};
 	suck.off    = noop;
 	suck.isOn   = noop1;
 	return ! BSP_remove_rtems_irq_handler(&suck);
+#else
+  return rtems_interrupt_handler_remove(
+    irqLine,
+    isr,
+    uarg
+  ) == RTEMS_SUCCESSFUL ? 0 : -1;
+#endif
 }
 
 #else
